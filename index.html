@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1b2a">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Projeto Fortaleza 2028</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#0d1b2a; --navy-mid:#16283d; --navy-line:#2a3f57;
+    --sand:#ece3d1; --sand-dim:#b9ac95; --gold:#c9a24c; --gold-soft:#e3c988;
+    --coral-muted:#c06b52; --ok:#7fae7c; --warn:#d1a34a; --pending:#8a95a3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:radial-gradient(ellipse at top, #142a41 0%, var(--navy-deep) 55%, #081018 100%);
+    color:var(--sand); font-family:'Karla',sans-serif; min-height:100vh; padding:0 0 60px;
+  }
+  a{color:var(--gold-soft);}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px;}
+  header.hero{padding:44px 20px 30px;text-align:center;border-bottom:1px solid var(--navy-line);}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,5vw,40px);margin:0 0 8px;}
+  .hero p.sub{color:var(--sand-dim);font-size:14.5px;max-width:480px;margin:0 auto;line-height:1.5;}
+
+  /* ---- Tela de setup do lar ---- */
+  #setupScreen{max-width:420px;margin:60px auto;padding:0 20px;text-align:center;}
+  #setupScreen h2{font-family:'Fraunces',serif;font-size:24px;margin-bottom:8px;}
+  #setupScreen p{color:var(--sand-dim);font-size:14px;line-height:1.5;margin-bottom:24px;}
+  .setup-card{background:var(--navy-mid);border:1px solid var(--navy-line);border-radius:12px;padding:22px;margin-bottom:14px;text-align:left;}
+  .setup-card h3{font-size:15px;margin:0 0 10px;font-family:'Karla',sans-serif;}
+  .setup-card input{width:100%;background:var(--navy-deep);border:1px solid var(--navy-line);color:var(--sand);border-radius:7px;padding:11px 12px;font-size:16px;font-family:'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+  .setup-card button{width:100%;background:var(--gold);color:var(--navy-deep);border:none;border-radius:7px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;}
+  .setup-card button.secondary{background:transparent;border:1px solid var(--navy-line);color:var(--sand);}
+  .setup-msg{font-size:12.5px;color:var(--coral-muted);min-height:16px;margin-top:6px;}
+  .code-reveal{font-family:'IBM Plex Mono',monospace;font-size:28px;letter-spacing:.15em;color:var(--gold-soft);text-align:center;padding:16px;background:var(--navy-deep);border-radius:8px;margin:14px 0;}
+
+  #appScreen{display:none;}
+
+  .profile-toggle{display:flex;justify-content:center;gap:8px;margin-top:22px;flex-wrap:wrap;}
+  .profile-btn{font-weight:600;font-size:13px;padding:9px 18px;border-radius:999px;border:1px solid var(--navy-line);background:transparent;color:var(--sand-dim);cursor:pointer;}
+  .profile-btn.active{background:var(--gold);border-color:var(--gold);color:var(--navy-deep);}
+
+  section{padding:32px 20px;}
+  h2.section-title{font-family:'Fraunces',serif;font-weight:600;font-size:21px;margin:0 0 4px;}
+  .section-note{color:var(--sand-dim);font-size:13px;margin:0 0 18px;}
+
+  .pin{background:linear-gradient(180deg, rgba(201,162,76,.1), transparent);border:1px solid var(--gold);border-radius:10px;padding:15px 17px;display:flex;gap:12px;align-items:flex-start;}
+  .pin .icon{font-size:17px;}
+  .pin p{margin:0;font-size:13.5px;line-height:1.55;}
+  .pin strong{color:var(--gold-soft);}
+
+  .stat-row{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .stat{flex:1;min-width:110px;background:var(--navy-mid);border:1px solid var(--navy-line);border-radius:8px;padding:14px;text-align:center;}
+  .stat .num{font-family:'Fraunces',serif;font-size:24px;color:var(--gold-soft);}
+  .stat .lbl{font-size:10.5px;color:var(--sand-dim);text-transform:uppercase;letter-spacing:.05em;font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+
+  .log-form{display:grid;grid-template-columns:1fr 90px;gap:10px;margin-bottom:10px;}
+  .log-form select,.log-form input,.log-form textarea{background:var(--navy-mid);border:1px solid var(--navy-line);color:var(--sand);border-radius:7px;padding:10px 12px;font-family:'Karla',sans-serif;font-size:14px;width:100%;}
+  .log-form textarea{grid-column:1/-1;min-height:48px;resize:vertical;}
+  .log-form button{grid-column:1/-1;background:var(--gold);color:var(--navy-deep);border:none;border-radius:7px;padding:11px;font-weight:700;font-size:14px;cursor:pointer;}
+
+  .log-list{list-style:none;margin:16px 0 0;padding:0;}
+  .log-list li{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--navy-line);font-size:13.5px;}
+  .log-list .meta{color:var(--sand-dim);font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+  .log-list .del{cursor:pointer;color:var(--coral-muted);background:none;border:none;font-size:16px;}
+  .empty{color:var(--sand-dim);font-size:13px;padding:14px 0;text-align:center;}
+
+  .sync-note{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--sand-dim);font-family:'IBM Plex Mono',monospace;justify-content:center;padding:14px 0 0;}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);}
+  .sync-dot.err{background:var(--coral-muted);}
+
+  footer{text-align:center;padding:24px 20px 6px;color:var(--sand-dim);font-size:11px;font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">Projeto Fortaleza 2028</div>
+  <h1>A rota até o litoral</h1>
+  <p class="sub">Registro de estudos sincronizado entre os dois aparelhos.</p>
+</header>
+
+<!-- TELA DE SETUP: criar ou entrar com código de lar -->
+<div id="setupScreen">
+  <h2>Antes de começar</h2>
+  <p>Um de vocês cria o "lar de estudos" e gera um código de 6 letras. O outro entra usando esse mesmo código — pronto, os dois passam a ver os mesmos dados.</p>
+
+  <div class="setup-card">
+    <h3>Já tenho um código</h3>
+    <input type="text" id="joinCodeInput" placeholder="Ex: F7K2P9" maxlength="6">
+    <button id="joinBtn">Entrar</button>
+    <div class="setup-msg" id="joinMsg"></div>
+  </div>
+
+  <div class="setup-card">
+    <h3>Ainda não tenho — criar agora</h3>
+    <button id="createBtn" class="secondary">Criar novo lar de estudos</button>
+    <div id="createResult"></div>
+  </div>
+</div>
+
+<!-- APP PRINCIPAL -->
+<div id="appScreen">
+  <div class="wrap">
+    <div class="profile-toggle" id="profileToggle"></div>
+
+    <section>
+      <div class="pin">
+        <div class="icon">🧭</div>
+        <p id="todayText"></p>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Registro de estudos</h2>
+      <p class="section-note" id="profileContextNote"></p>
+
+      <div class="stat-row">
+        <div class="stat"><div class="num" id="statStreak">0</div><div class="lbl">Sequência (dias)</div></div>
+        <div class="stat"><div class="num" id="statWeekHours">0h</div><div class="lbl">Esta semana</div></div>
+        <div class="stat"><div class="num" id="statTotalHours">0h</div><div class="lbl">Total do casal</div></div>
+      </div>
+
+      <div class="log-form">
+        <select id="subjectSelect"></select>
+        <input type="number" id="hoursInput" placeholder="Horas" min="0.5" step="0.5">
+        <textarea id="notesInput" placeholder="Notas (opcional)"></textarea>
+        <button id="addLogBtn">Registrar sessão de hoje</button>
+      </div>
+
+      <ul class="log-list" id="logList"></ul>
+      <div class="empty" id="emptyState" style="display:none;">Nenhuma sessão registrada ainda.</div>
+
+      <div class="sync-note"><span class="sync-dot" id="syncDot"></span><span id="syncText">sincronizado</span></div>
+    </section>
+  </div>
+</div>
+
+<footer>Projeto Fortaleza 2028 · código do lar fica salvo neste aparelho</footer>
+
+<script src="config.js"></script>
+<script>
+(function(){
+  const SUBJECTS = [
+    "Língua Portuguesa","Direito Constitucional","Direito Administrativo",
+    "Direito Processual Civil","Direito Processual Penal",
+    "Direito do Trabalho e Processual do Trabalho","Direito Previdenciário",
+    "Raciocínio Lógico-Matemático","Informática","Revisão / Simulado"
+  ];
+
+  const WEEKDAY_TYPE = ['planejamento','juridica','juridica','instrumental','revisao','instrumental','questoes'];
+  const JURIDICA_SEQ = [
+    { subject: "Direito Constitucional", weeks: 10 },
+    { subject: "Direito Administrativo", weeks: 8 },
+    { subject: "Direito Processual Civil", weeks: 10 },
+    { subject: "Direito Processual Penal", weeks: 6 },
+    { subject: "Direito do Trabalho e Processual do Trabalho", weeks: 6 },
+  ];
+  const INSTRUMENTAL_SEQ = [
+    { subject: "Língua Portuguesa", weeks: 6 },
+    { subject: "Raciocínio Lógico-Matemático", weeks: 6 },
+    { subject: "Informática", weeks: 4 },
+  ];
+  const START_DATE = new Date(2026, 6, 30);
+
+  const LS_CODE_KEY = "fortaleza2028_household_code";
+  const LS_PROFILE_KEY = "fortaleza2028_active_slot";
+
+  let householdCode = localStorage.getItem(LS_CODE_KEY);
+  let activeSlot = localStorage.getItem(LS_PROFILE_KEY) || "a";
+  let profiles = [];
+  let logs = [];
+
+  function api(path, opts){
+    return fetch(API_BASE_URL + path, Object.assign({
+      headers: { "Content-Type": "application/json" }
+    }, opts)).then(async (r) => {
+      if(!r.ok){
+        const body = await r.json().catch(()=>({error:"Erro desconhecido"}));
+        throw new Error(body.error || "Erro na API");
+      }
+      if(r.status === 204) return null;
+      return r.json();
+    });
+  }
+
+  // ---------- SETUP ----------
+  document.getElementById('createBtn').addEventListener('click', async ()=>{
+    const btn = document.getElementById('createBtn');
+    btn.disabled = true; btn.textContent = "Criando...";
+    try{
+      const res = await api('/api/household', { method: 'POST' });
+      document.getElementById('createResult').innerHTML =
+        `<div class="code-reveal">${res.code}</div>
+         <p style="font-size:12.5px;color:var(--sand-dim);">Anote esse código e use no outro celular pra entrar. Você já está entrando aqui automaticamente.</p>`;
+      localStorage.setItem(LS_CODE_KEY, res.code);
+      setTimeout(()=> boot(res.code), 1400);
+    }catch(e){
+      document.getElementById('createResult').innerHTML = `<p class="setup-msg">${e.message}</p>`;
+      btn.disabled = false; btn.textContent = "Criar novo lar de estudos";
+    }
+  });
+
+  document.getElementById('joinBtn').addEventListener('click', async ()=>{
+    const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+    const msg = document.getElementById('joinMsg');
+    if(!code){ msg.textContent = "Digite o código."; return; }
+    try{
+      await api('/api/household/' + code);
+      localStorage.setItem(LS_CODE_KEY, code);
+      boot(code);
+    }catch(e){
+      msg.textContent = e.message;
+    }
+  });
+
+  // ---------- APP ----------
+  async function boot(code){
+    householdCode = code;
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+    try{
+      const data = await api('/api/household/' + householdCode);
+      profiles = data.profiles;
+      await loadLogs();
+      render();
+      setSyncStatus(true);
+    }catch(e){
+      setSyncStatus(false, e.message);
+    }
+  }
+
+  async function loadLogs(){
+    logs = await api('/api/household/' + householdCode + '/logs');
+  }
+
+  function setSyncStatus(ok, msg){
+    document.getElementById('syncDot').className = 'sync-dot' + (ok ? '' : ' err');
+    document.getElementById('syncText').textContent = ok ? 'sincronizado' : (msg || 'sem conexão com o servidor');
+  }
+
+  function activeProfile(){
+    return profiles.find(p=>p.slot===activeSlot) || profiles[0];
+  }
+
+  function renderProfileToggle(){
+    const el = document.getElementById('profileToggle');
+    el.innerHTML = '';
+    profiles.forEach(p=>{
+      const btn = document.createElement('button');
+      btn.className = 'profile-btn' + (p.slot===activeSlot ? ' active':'');
+      btn.textContent = p.label;
+      btn.addEventListener('click', ()=>{
+        activeSlot = p.slot;
+        localStorage.setItem(LS_PROFILE_KEY, activeSlot);
+        renderProfileToggle();
+        renderLogSection();
+      });
+      btn.addEventListener('dblclick', async ()=>{
+        const novo = prompt("Novo nome do perfil:", p.label);
+        if(novo && novo.trim()){
+          try{
+            await api(`/api/household/${householdCode}/profiles/${p.slot}`, {
+              method: 'PATCH', body: JSON.stringify({label: novo.trim()})
+            });
+            p.label = novo.trim();
+            renderProfileToggle();
+          }catch(e){ alert(e.message); }
+        }
+      });
+      el.appendChild(btn);
+    });
+  }
+
+  function getWeekNumber(){
+    const diffDays = Math.floor((new Date() - START_DATE) / (1000*60*60*24));
+    return Math.max(0, Math.floor(diffDays/7));
+  }
+  function subjectFromSequence(seq, weekNumber){
+    const total = seq.reduce((a,s)=>a+s.weeks,0);
+    let w = weekNumber % total;
+    for(const item of seq){ if(w < item.weeks) return item.subject; w -= item.weeks; }
+    return seq[0].subject;
+  }
+  function getTodayFocus(){
+    const dayIdx = new Date().getDay();
+    const type = WEEKDAY_TYPE[dayIdx];
+    const week = getWeekNumber();
+    switch(type){
+      case 'juridica': return { subject: subjectFromSequence(JURIDICA_SEQ, week), label: "Trilha jurídica" };
+      case 'instrumental': return { subject: subjectFromSequence(INSTRUMENTAL_SEQ, week), label: "Trilha instrumental" };
+      case 'revisao': return { subject: "Revisão / Simulado", label: "Revisão espaçada — temas anteriores" };
+      case 'questoes': return { subject: "Revisão / Simulado", label: "Questões e simulado geral" };
+      default: return { subject: "Revisão / Simulado", label: "Revisão da semana + planejamento" };
+    }
+  }
+
+  function renderTodayBanner(){
+    const focus = getTodayFocus();
+    const dayNames = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+    document.getElementById('todayText').innerHTML =
+      `<strong>Hoje é ${dayNames[new Date().getDay()]} — dia de ${focus.subject}.</strong><br>${focus.label}.`;
+    const sel = document.getElementById('subjectSelect');
+    if(sel) sel.value = focus.subject;
+  }
+
+  function populateSubjects(){
+    document.getElementById('subjectSelect').innerHTML =
+      SUBJECTS.map(s=>`<option value="${s}">${s}</option>`).join('');
+  }
+
+  function computeStats(){
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7*24*60*60*1000);
+    const mine = logs.filter(l=>l.profileSlot===activeSlot);
+    let weekHours=0, totalAll=0;
+    logs.forEach(l=> totalAll += l.hours);
+    mine.forEach(l=>{ if(new Date(l.loggedAt) >= weekAgo) weekHours += l.hours; });
+
+    const daysWithLog = new Set(mine.map(l=> new Date(l.loggedAt).toDateString()));
+    let streak=0, cursor=new Date();
+    while(daysWithLog.has(cursor.toDateString())){ streak++; cursor.setDate(cursor.getDate()-1); }
+    return { weekHours, totalAll, streak };
+  }
+
+  function renderLogSection(){
+    const prof = activeProfile();
+    document.getElementById('profileContextNote').textContent = `Sessões de ${prof.label}. Toque duas vezes no nome acima pra renomear.`;
+
+    const stats = computeStats();
+    document.getElementById('statStreak').textContent = stats.streak;
+    document.getElementById('statWeekHours').textContent = stats.weekHours.toFixed(1).replace('.0','') + 'h';
+    document.getElementById('statTotalHours').textContent = stats.totalAll.toFixed(1).replace('.0','') + 'h';
+
+    const list = document.getElementById('logList');
+    const empty = document.getElementById('emptyState');
+    list.innerHTML = '';
+    if(logs.length === 0){ empty.style.display='block'; return; }
+    empty.style.display='none';
+
+    logs.forEach(entry=>{
+      const li = document.createElement('li');
+      const d = new Date(entry.loggedAt);
+      const who = profiles.find(p=>p.slot===entry.profileSlot);
+      li.innerHTML = `
+        <div>
+          <div><strong>${entry.subject}</strong> — ${entry.hours}h <span class="meta">(${who?who.label:entry.profileSlot})</span></div>
+          ${entry.notes ? `<div class="meta">${entry.notes}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="meta">${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</span>
+          <button class="del" data-id="${entry.id}">✕</button>
+        </div>`;
+      list.appendChild(li);
+    });
+
+    list.querySelectorAll('.del').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        try{
+          await api(`/api/household/${householdCode}/logs/${btn.dataset.id}`, { method: 'DELETE' });
+          await loadLogs();
+          renderLogSection();
+        }catch(e){ alert(e.message); }
+      });
+    });
+  }
+
+  document.getElementById('addLogBtn').addEventListener('click', async ()=>{
+    const subject = document.getElementById('subjectSelect').value;
+    const hours = parseFloat(document.getElementById('hoursInput').value);
+    const notes = document.getElementById('notesInput').value.trim();
+    if(!hours || hours<=0){ document.getElementById('hoursInput').focus(); return; }
+    try{
+      await api(`/api/household/${householdCode}/logs`, {
+        method:'POST',
+        body: JSON.stringify({ profileSlot: activeSlot, subject, hours, notes })
+      });
+      document.getElementById('hoursInput').value='';
+      document.getElementById('notesInput').value='';
+      await loadLogs();
+      renderLogSection();
+      setSyncStatus(true);
+    }catch(e){
+      setSyncStatus(false, e.message);
+    }
+  });
+
+  function render(){
+    renderProfileToggle();
+    renderTodayBanner();
+    populateSubjects();
+    renderLogSection();
+  }
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  }
+
+  if(householdCode){
+    boot(householdCode);
+  }
+})();
+</script>
+</body>
+</html>
