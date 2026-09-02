@@ -1,6 +1,6 @@
 // Lembrete: sempre que publicar mudanças relevantes, incremente CACHE_VERSION.
 // Isso evita o problema clássico do iPhone de manter versão antiga em cache.
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_NAME = `fortaleza2028-${CACHE_VERSION}`;
 
 const APP_SHELL = [
