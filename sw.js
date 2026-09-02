@@ -1,6 +1,6 @@
 // Lembrete: sempre que publicar mudanças relevantes, incremente CACHE_VERSION.
 // Isso evita o problema clássico do iPhone de manter versão antiga em cache.
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const CACHE_NAME = `fortaleza2028-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -33,15 +33,13 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Chamadas de API: sempre rede primeiro (dados precisam estar atualizados)
-  if (url.pathname.startsWith("/api/")) {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
-    );
+  // Se a chamada é pra outro domínio (ex: a API no Render), o service worker
+  // não mexe em nada — deixa o navegador cuidar normalmente, sem interceptar.
+  if (url.origin !== self.location.origin) {
     return;
   }
 
-  // App shell: cache primeiro, com atualização em segundo plano
+  // App shell (páginas do próprio site): cache primeiro, com atualização em segundo plano
   event.respondWith(
     caches.match(event.request).then((cached) => {
       const fetchPromise = fetch(event.request)
